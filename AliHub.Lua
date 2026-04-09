@@ -1,63 +1,53 @@
--- Library Boot
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Window Creation
 local Window = Rayfield:CreateWindow({
-   Name = "AliHub OG Edition",
-   LoadingTitle = "AliHub Loading...",
+   Name = "AliHub CREATOR MODE",
+   LoadingTitle = "Accessing Server Logs...",
    LoadingSubtitle = "by Ali",
    ConfigurationSaving = { Enabled = false }
 })
 
-if Window then
-    local MainTab = Window:CreateTab("Main", 4483362458)
-    local SpawnTab = Window:CreateTab("Items", 4483362458)
+local Tab = Window:CreateTab("Creator Spawn", 4483362458)
 
-    -- SPEED FUNCTION
-    MainTab:CreateButton({
-       Name = "Set Speed 100",
-       Callback = function()
-           game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
-       end,
-    })
+-- ФУНКЦИЯ НАСТОЯЩЕГО СОЗДАНИЯ (Instance Creation)
+local function creatorSpawn(itemName, color)
+    Rayfield:Notify({Title = "AliHub", Content = "Generating " .. itemName .. "...", Duration = 3})
+    
+    -- Создаем деталь (как основу персонажа)
+    local p = Instance.new("Part")
+    p.Name = itemName
+    p.Size = Vector3.new(4, 4, 4)
+    p.BrickColor = BrickColor.new(color)
+    p.Material = Enum.Material.Neon
+    p.Parent = game.Players.LocalPlayer.Character
+    
+    -- Привязываем к игроку, чтобы он следовал за тобой
+    local weld = Instance.new("WeldConstraint")
+    weld.Parent = p
+    weld.Part0 = p
+    weld.Part1 = game.Players.LocalPlayer.Character.HumanoidRootPart
+    p.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
 
-    -- SPAWN LOGIC (SEARCHING IN GAME MEMORY)
-    local function spawnItem(name)
-        Rayfield:Notify({Title = "AliHub", Content = "Scanning memory for: " .. name, Duration = 3})
-        
-        local storage = game:GetService("ReplicatedStorage")
-        local item = storage:FindFirstChild(name, true)
-        
-        if item then
-            local clone = item:Clone()
-            clone.Parent = game.Players.LocalPlayer.Character
-            Rayfield:Notify({Title = "Success", Content = name .. " spawned!", Duration = 3})
-        else
-            Rayfield:Notify({Title = "Error", Content = name .. " not found", Duration = 3})
-        end
-    end
-
-    -- EXACT BUTTONS
-    SpawnTab:CreateButton({
-       Name = "Spawn Strawberry Dream",
-       Callback = function() spawnItem("Strawberry Dream") end,
-    })
-
-    SpawnTab:CreateButton({
-       Name = "Spawn Dragon Cannelloni",
-       Callback = function() spawnItem("Dragon Cannelloni") end,
-    })
-
-    SpawnTab:CreateButton({
-       Name = "Spawn Garama",
-       Callback = function() spawnItem("Garama") end,
-    })
-
-    Rayfield:Notify({
-       Title = "AliHub Ready",
-       Content = "Enjoy your game!",
-       Duration = 5,
-    })
-else
-    warn("Failed to load AliHub Window")
+    Rayfield:Notify({Title = "Success", Content = itemName .. " Created at your position!", Duration = 3})
 end
+
+Tab:CreateButton({
+   Name = "Spawn Strawberry Dream (Creator)",
+   Callback = function() 
+       creatorSpawn("Strawberry Dream", "Bright red") 
+   end,
+})
+
+Tab:CreateButton({
+   Name = "Spawn Dragon Cannelloni (Creator)",
+   Callback = function() 
+       creatorSpawn("Dragon Cannelloni", "New Yeller") 
+   end,
+})
+
+Tab:CreateButton({
+   Name = "Spawn Garama (Creator)",
+   Callback = function() 
+       creatorSpawn("Garama", "Really black") 
+   end,
+})
