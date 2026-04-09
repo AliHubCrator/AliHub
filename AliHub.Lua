@@ -1,53 +1,49 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "AliHub CREATOR MODE",
-   LoadingTitle = "Accessing Server Logs...",
+   Name = "AliHub | Spawner Only",
+   LoadingTitle = "Safe Mode Active",
    LoadingSubtitle = "by Ali",
    ConfigurationSaving = { Enabled = false }
 })
 
-local Tab = Window:CreateTab("Creator Spawn", 4483362458)
+local Tab = Window:CreateTab("Spawn List", 4483362458)
 
--- ФУНКЦИЯ НАСТОЯЩЕГО СОЗДАНИЯ (Instance Creation)
-local function creatorSpawn(itemName, color)
-    Rayfield:Notify({Title = "AliHub", Content = "Generating " .. itemName .. "...", Duration = 3})
+-- ФУНКЦИЯ ЧИСТОГО СПАВНА
+local function pureSpawn(name)
+    Rayfield:Notify({Title = "AliHub", Content = "Spawning: " .. name, Duration = 2})
     
-    -- Создаем деталь (как основу персонажа)
-    local p = Instance.new("Part")
-    p.Name = itemName
-    p.Size = Vector3.new(4, 4, 4)
-    p.BrickColor = BrickColor.new(color)
-    p.Material = Enum.Material.Neon
-    p.Parent = game.Players.LocalPlayer.Character
+    -- Ищем оригинал в папках сервера
+    local storage = game:GetService("ReplicatedStorage")
+    local original = storage:FindFirstChild(name, true)
     
-    -- Привязываем к игроку, чтобы он следовал за тобой
-    local weld = Instance.new("WeldConstraint")
-    weld.Parent = p
-    weld.Part0 = p
-    weld.Part1 = game.Players.LocalPlayer.Character.HumanoidRootPart
-    p.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 5, 0)
-
-    Rayfield:Notify({Title = "Success", Content = itemName .. " Created at your position!", Duration = 3})
+    if original then
+        local clone = original:Clone()
+        -- Ставим модель рядом, чтобы не мешала ходить
+        clone.Parent = game.Workspace
+        clone:MoveTo(game.Players.LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(7, 0, 0))
+    else
+        Rayfield:Notify({Title = "Error", Content = "Model not found on this server", Duration = 3})
+    end
 end
 
+-- Кнопки для спавна (без лишних скриптов на бег)
 Tab:CreateButton({
-   Name = "Spawn Strawberry Dream (Creator)",
-   Callback = function() 
-       creatorSpawn("Strawberry Dream", "Bright red") 
-   end,
+   Name = "Spawn Strawberry Dream",
+   Callback = function() pureSpawn("Strawberry Dream") end,
 })
 
 Tab:CreateButton({
-   Name = "Spawn Dragon Cannelloni (Creator)",
-   Callback = function() 
-       creatorSpawn("Dragon Cannelloni", "New Yeller") 
-   end,
+   Name = "Spawn Dragon Cannelloni",
+   Callback = function() pureSpawn("Dragon Cannelloni") end,
 })
 
 Tab:CreateButton({
-   Name = "Spawn Garama (Creator)",
-   Callback = function() 
-       creatorSpawn("Garama", "Really black") 
-   end,
+   Name = "Spawn Garama",
+   Callback = function() pureSpawn("Garama") end,
+})
+
+Tab:CreateButton({
+   Name = "Spawn OG Brainrot",
+   Callback = function() pureSpawn("OG Brainrot") end,
 })
