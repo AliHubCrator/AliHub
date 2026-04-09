@@ -1,63 +1,50 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "AliHub ULTIMATE",
-   LoadingTitle = "Взлом Системы...",
+   Name = "AliHub OG | Steal a Brainrot",
+   LoadingTitle = "Final Protocol...",
    LoadingSubtitle = "by Ali",
    ConfigurationSaving = { Enabled = false }
 })
 
-local MainTab = Window:CreateTab("Хаки", 4483362458)
+local Tab = Window:CreateTab("Spawn Menu", 4483362458)
 
--- ЖЁСТКАЯ СКОРОСТЬ (через цикл, чтобы не сбрасывалась)
-MainTab:CreateToggle({
-   Name = "Super Speed (Loop)",
-   CurrentValue = false,
-   Callback = function(Value)
-       _G.Speed = Value
-       while _G.Speed do
-           game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 120
-           task.wait(0.1)
-       end
-   end,
-})
-
--- СКРИПТ НА СПАВН / ПОЛУЧЕНИЕ (Метод касания)
-local function ultraSpawn(targetName)
-    Rayfield:Notify({Title = "AliHub", Content = "Ищу " .. targetName .. " на сервере...", Duration = 3})
+local function finalSpawn(name)
+    Rayfield:Notify({Title = "AliHub", Content = "Попытка взлома инвентаря: " .. name, Duration = 3})
     
-    local found = false
-    for _, v in pairs(game.Workspace:GetDescendants()) do
-        -- Ищем по названию или внутри папок с секретками
-        if v.Name:lower():find(targetName:lower()) or v.Name == "Click" then
-            if v:IsA("BasePart") or v:IsA("ClickDetector") then
-                -- Телепортируем тебя на долю секунды к нему и обратно
-                local oldPos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
-                task.wait(0.1)
-                if v:IsA("ClickDetector") then fireclickdetector(v) end
-                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = oldPos
-                found = true
+    -- Ищем модельку во ВСЕЙ игре, а не только на карте
+    local storage = game:GetService("ReplicatedStorage")
+    local target = storage:FindFirstChild(name, true) or game:GetService("Lighting"):FindFirstChild(name, true)
+    
+    if target then
+        -- Если нашли в памяти - клонируем его тебе!
+        local clone = target:Clone()
+        clone.Parent = game.Players.LocalPlayer.Character
+        Rayfield:Notify({Title = "Успех!", Content = name .. " спавнится!", Duration = 3})
+    else
+        -- Если даже в памяти нет, значит название другое. Пробуем найти похожее:
+        for _, v in pairs(storage:GetDescendants()) do
+            if v.Name:lower():find(name:lower()) then
+                v:Clone().Parent = game.Players.LocalPlayer.Character
+                Rayfield:Notify({Title = "Нашел похожее", Content = "Спавню: " .. v.Name, Duration = 3})
+                return
             end
         end
-    end
-    
-    if not found then
-        Rayfield:Notify({Title = "Ошибка", Content = targetName .. " не найден на этом сервере", Duration = 3})
+        Rayfield:Notify({Title = "Ошибка", Content = "Сервер скрыл данные " .. name, Duration = 3})
     end
 end
 
-MainTab:CreateButton({
-   Name = "Get Strawberry Dream",
-   Callback = function() ultraSpawn("Strawberry") end,
+Tab:CreateButton({
+   Name = "Spawn Garama (From Storage)",
+   Callback = function() finalSpawn("Garama") end,
 })
 
-MainTab:CreateButton({
-   Name = "Get Dragon Cannelloni",
-   Callback = function() ultraSpawn("Dragon") end,
+Tab:CreateButton({
+   Name = "Spawn Strawberry Dream",
+   Callback = function() finalSpawn("Strawberry") end,
 })
 
-MainTab:CreateButton({
-   Name = "Get Garama",
-   Callback = function() ultraSpawn("Garama") end,
+Tab:CreateButton({
+   Name = "Spawn Dragon",
+   Callback = function() finalSpawn("Dragon") end,
 })
