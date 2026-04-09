@@ -1,39 +1,44 @@
--- @diagnostic disable: undefined-global
+local player = game.GetService("Players").LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
 
--- [[ LOADING LIBRARY ]] --
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+-- 1. БЫСТРЫЙ БЕГ (Speed)
+humanoid.WalkSpeed = 100 -- Обычная скорость 16, тут в 6 раз быстрее
 
--- [[ WINDOW SETUP ]] --
-local Window = OrionLib:MakeWindow({
-    Name = "Ali Hub | PRO", 
-    HidePremium = true, 
-    SaveConfig = true, 
-    ConfigFolder = "AliProject"
-})
+-- 2. ВЫСОКИЙ ПРЫЖОК (Jump)
+humanoid.JumpPower = 150 -- Обычный прыжок 50
+humanoid.UseJumpPower = true
 
--- [[ MAIN TAB ]] --
-local Tab = Window:MakeTab({
-    Name = "Main",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
+-- 3. ПОЛЕТ (Fly) - Самый простой вариант через Velocity
+local flying = true
+local bv = Instance.new("BodyVelocity")
+bv.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+bv.Velocity = Vector3.new(0, 0, 0)
+bv.Parent = character.HumanoidRootPart
 
--- [[ TOGGLE SECTION ]] --
-Tab:AddToggle({
-    Name = "Auto-Spawn OG", -- Название кнопки
-    Default = false,
-    Callback = function(Value)
-        _G.Active = Value
-        task.spawn(function()
-            while _G.Active do
-                -- Используем чистые пути без русского языка
-                local ReplicatedStorage = game:GetService("ReplicatedStorage")
-                local event = ReplicatedStorage:WaitForChild("Events"):WaitForChild("SpawnBrainrot")
-                event:FireServer("Normal")
-                task.wait(0.1)
-            end
-        end)
-    end    
-})
+-- 4. НЕВИДИМКА (Invisibility)
+-- Работает локально (тебя не видят игроки, если скрипт пробит через инжектор)
+for _, part in pairs(character:GetDescendants()) do
+    if part:IsA("BasePart") or part:IsA("Decal") then
+        part.Transparency = 0.5 -- Сделаем полупрозрачным, чтобы ты себя видел, а другие — нет
+    end
+end
 
-OrionLib:Init()
+-- 5. AUTO-CLICKER РУКОЙ (Тот самый autobio)
+_G.AutoClick = true
+spawn(function()
+    while _G.AutoClick do
+        local tool = character:FindFirstChildOfClass("Tool")
+        if tool then
+            tool:Activate()
+        else
+            -- Если руки пустые, пытаемся бить просто так
+            local virtualUser = game:GetService("VirtualUser")
+            virtualUser:CaptureController()
+            virtualUser:ClickButton1(Vector2.new(0,0))
+        end
+        task.wait(0.05)
+    end
+end)
+
+print("AliHub: Все функции активированы!")
