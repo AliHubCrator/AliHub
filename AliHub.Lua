@@ -1,42 +1,60 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Создаем окно
 local Window = Rayfield:CreateWindow({
-   Name = "AliHub | PRO BREAKER",
-   LoadingTitle = "Bypassing Security...",
+   Name = "AliHub | STEALTH",
+   LoadingTitle = "Executing Stealth Bypass...",
    LoadingSubtitle = "by Ali",
    ConfigurationSaving = { Enabled = false }
 })
 
--- ЖДЕМ ОКНО ДО ПОБЕДНОГО (Цикл ожидания)
+-- Ждем загрузки окна
 repeat task.wait(0.5) until Window ~= nil
 
--- Теперь создаем вкладку, когда окно ТОЧНО есть
-local Tab = Window:CreateTab("Event Hacks", 4483362458)
+local Tab = Window:CreateTab("Safe Events", 4483362458)
 
-local function forceEvent(name)
-    Rayfield:Notify({Title = "AliHub", Content = "Bruteforcing: " .. name, Duration = 3})
-    
-    for _, v in pairs(game:GetDescendants()) do
-        if v:IsA("RemoteEvent") and (v.Name:lower():find(name:lower()) or v.Name:lower():find("event")) then
-            v:FireServer(true) 
-            v:FireServer()
-            Rayfield:Notify({Title = "SUCCESS", Content = "Signal sent to: " .. v.Name, Duration = 3})
-        end
+local function safeFire(eventPath, name)
+    if eventPath then
+        Rayfield:Notify({Title = "AliHub", Content = "Activating: " .. name, Duration = 2})
+        eventPath:FireServer()
+        -- Ждем полсекунды, чтобы не лагало
+        task.wait(0.5)
     end
 end
 
 Tab:CreateButton({
-   Name = "Force Strawberry Event",
-   Callback = function() forceEvent("Strawberry") end,
+   Name = "Claim Egg & Coins (Safe)",
+   Callback = function()
+       local service = game:GetService("ReplicatedStorage"):FindFirstChild("EventService", true)
+       if service then
+           local hunt = service:FindFirstChild("EggrotHunt", true)
+           if hunt then
+               -- Активируем по очереди с паузой
+               safeFire(hunt:FindFirstChild("SpawnCoin"), "Spawn Coin")
+               safeFire(hunt:FindFirstChild("ClaimCoin"), "Claim Coin")
+               safeFire(hunt:FindFirstChild("GoldEggReward"), "Gold Egg")
+           end
+       end
+   end,
 })
 
 Tab:CreateButton({
-   Name = "Force Dragon Event",
-   Callback = function() forceEvent("Dragon") end,
+   Name = "Force Strawberry Dream",
+   Callback = function()
+       -- Ищем именно секретные ивенты персонажей
+       for _, v in pairs(game:GetDescendants()) do
+           if v:IsA("RemoteEvent") and v.Name:lower():find("strawberry") then
+               safeFire(v, "Strawberry Event")
+               break
+           end
+       end
+   end,
 })
 
 Tab:CreateButton({
-   Name = "Force Garama Event",
-   Callback = function() forceEvent("Garama") end,
+   Name = "Anti-Lag Reset",
+   Callback = function()
+       -- Очистка персонажа если залагало
+       game.Players.LocalPlayer.Character.Humanoid.Health = 0
+       Rayfield:Notify({Title = "Reset", Content = "Character reset to fix lag", Duration = 2})
+   end,
 })
