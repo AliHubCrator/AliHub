@@ -7,18 +7,17 @@ local Window = Rayfield:CreateWindow({
    ConfigurationSaving = { Enabled = false }
 })
 
--- Защита от ошибки index nil
+-- Ждем 1 секунду, чтобы окно точно создалось
+task.wait(1)
+
 if Window then
     local Tab = Window:CreateTab("Event Hacks", 4483362458)
 
-    -- ГЛАВНАЯ ФУНКЦИЯ ПРОРЫВА
     local function forceEvent(name)
         Rayfield:Notify({Title = "AliHub", Content = "Bruteforcing: " .. name, Duration = 3})
         
-        -- Ищем скрытые команды сервера (RemoteEvents)
         for _, v in pairs(game:GetDescendants()) do
             if v:IsA("RemoteEvent") and (v.Name:lower():find(name:lower()) or v.Name:lower():find("event")) then
-                -- Мы не просто тыкаем, мы шлем сигнал "True", что ивент выполнен
                 v:FireServer(true) 
                 v:FireServer()
                 Rayfield:Notify({Title = "SUCCESS", Content = "Signal sent to: " .. v.Name, Duration = 3})
@@ -40,19 +39,7 @@ if Window then
        Name = "Force Garama Event",
        Callback = function() forceEvent("Garama") end,
     })
-
-    -- КНОПКА ТЕЛЕПОРТА (Там всегда лежит ивент)
-    Tab:CreateButton({
-       Name = "Teleport to Event Item",
-       Callback = function()
-           for _, item in pairs(game.Workspace:GetDescendants()) do
-               if item.Name:lower():find("strawberry") or item.Name:lower():find("dragon") then
-                   game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = item.CFrame
-                   return
-               end
-           end
-       end,
-    })
 else
-    warn("Rayfield Window Error!")
+    -- Если окно не создалось, выведем это в консоль для проверки
+    print("FATAL ERROR: Window is nil!")
 end
