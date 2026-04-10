@@ -1,34 +1,52 @@
-local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-print("AliHub Loaded Successfully!")
+local Window = Rayfield:CreateWindow({
+   Name = "AliHub | Grow a Garden",
+   LoadingTitle = "AliHub Loading...",
+   LoadingSubtitle = "by Ali",
+   ConfigurationSaving = { Enabled = false }
+})
 
-function stealFromEveryone()
-    -- Look for the folder with gardens (checks multiple names just in case)
-    local gardens = workspace:FindFirstChild("Gardens") or workspace:FindFirstChild("Plots") or workspace:FindFirstChild("Farms") or workspace:FindFirstChild("PlotsModel")
-    
+local MainTab = Window:CreateTab("Main Hacks", nil) -- Вкладка с функциями
+
+-- Функция для воровства
+local function stealItems()
+    local gardens = workspace:FindFirstChild("Gardens") or workspace:FindFirstChild("Plots")
     if gardens then
         for _, plot in pairs(gardens:GetChildren()) do
             for _, item in pairs(plot:GetDescendants()) do
-                -- Check for harvestable tag
                 if item.Name == "Harvestable" and item.Value == true then
-                    local crop = item.Parent
-                    local remote = game:GetService("ReplicatedStorage"):FindFirstChild("Events")
-                    if remote and remote:FindFirstChild("Harvest") then
-                        remote.Harvest:FireServer(crop)
-                    end
+                    game:GetService("ReplicatedStorage").Events.Harvest:FireServer(item.Parent)
                 end
             end
         end
     end
 end
 
--- Main loop
-spawn(function()
-    while task.wait(1) do
-        -- Steal and harvest
-        pcall(stealFromEveryone)
-    end
-end)
+-- Кнопка для воровства
+MainTab:CreateButton({
+   Name = "Steal Everything (Воровать)",
+   Callback = function()
+       stealItems()
+   end,
+})
 
-print("AliHub System: Running")
+-- Переключатель для авто-фарма
+MainTab:CreateToggle({
+   Name = "Auto Farm & Steal (Авто-вор)",
+   CurrentValue = false,
+   Flag = "Toggle1",
+   Callback = function(Value)
+       _G.AutoFarm = Value
+       while _G.AutoFarm do
+           stealItems()
+           task.wait(1)
+       end
+   end,
+})
+
+Rayfield:Notify({
+   Title = "AliHub Loaded!",
+   Content = "Enjoy stealing gardens!",
+   Duration = 5,
+})
