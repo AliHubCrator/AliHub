@@ -1,60 +1,39 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- AliHub Custom Stealer & Farm
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
 
-local Window = Rayfield:CreateWindow({
-   Name = "AliHub | STEALTH",
-   LoadingTitle = "Executing Stealth Bypass...",
-   LoadingSubtitle = "by Ali",
-   ConfigurationSaving = { Enabled = false }
-})
+print("AliHub Loaded! Starting Steal & Farm...")
 
--- Ждем загрузки окна
-repeat task.wait(0.5) until Window ~= nil
-
-local Tab = Window:CreateTab("Safe Events", 4483362458)
-
-local function safeFire(eventPath, name)
-    if eventPath then
-        Rayfield:Notify({Title = "AliHub", Content = "Activating: " .. name, Duration = 2})
-        eventPath:FireServer()
-        -- Ждем полсекунды, чтобы не лагало
-        task.wait(0.5)
+-- Функция для воровства у всех на сервере
+function stealFromEveryone()
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            -- Пытаемся забрать созревший урожай у других
+            local otherGarden = workspace.Gardens:FindFirstChild(otherPlayer.Name)
+            if otherGarden then
+                for _, crop in pairs(otherGarden:GetChildren()) do
+                    if crop:FindFirstChild("Harvestable") and crop.Harvestable.Value == true then
+                        game:GetService("ReplicatedStorage").Events.Harvest:FireServer(crop)
+                    end
+                end
+            end
+        end
     end
 end
 
-Tab:CreateButton({
-   Name = "Claim Egg & Coins (Safe)",
-   Callback = function()
-       local service = game:GetService("ReplicatedStorage"):FindFirstChild("EventService", true)
-       if service then
-           local hunt = service:FindFirstChild("EggrotHunt", true)
-           if hunt then
-               -- Активируем по очереди с паузой
-               safeFire(hunt:FindFirstChild("SpawnCoin"), "Spawn Coin")
-               safeFire(hunt:FindFirstChild("ClaimCoin"), "Claim Coin")
-               safeFire(hunt:FindFirstChild("GoldEggReward"), "Gold Egg")
-           end
-       end
-   end,
-})
+-- Функция автофарма (сажаем и собираем у себя)
+spawn(function()
+    while wait(1) do
+        -- Собираем свой урожай
+        local myGarden = workspace.Gardens:FindFirstChild(player.Name)
+        if myGarden then
+            for _, crop in pairs(myGarden:GetChildren()) do
+                game:GetService("ReplicatedStorage").Events.Harvest:FireServer(crop)
+            end
+        end
+        -- Воруем у других каждые 5 секунд
+        stealFromEveryone()
+    end
+end)
 
-Tab:CreateButton({
-   Name = "Force Strawberry Dream",
-   Callback = function()
-       -- Ищем именно секретные ивенты персонажей
-       for _, v in pairs(game:GetDescendants()) do
-           if v:IsA("RemoteEvent") and v.Name:lower():find("strawberry") then
-               safeFire(v, "Strawberry Event")
-               break
-           end
-       end
-   end,
-})
-
-Tab:CreateButton({
-   Name = "Anti-Lag Reset",
-   Callback = function()
-       -- Очистка персонажа если залагало
-       game.Players.LocalPlayer.Character.Humanoid.Health = 0
-       Rayfield:Notify({Title = "Reset", Content = "Character reset to fix lag", Duration = 2})
-   end,
-})
+print("Steal Mode: ON")
