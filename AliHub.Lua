@@ -1,19 +1,21 @@
--- AliHub Custom Stealer & Farm
 local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
+local char = player.Character or player.CharacterAdded:Wait()
 
-print("AliHub Loaded! Starting Steal & Farm...")
+print("AliHub Loaded Successfully!")
 
--- Функция для воровства у всех на сервере
 function stealFromEveryone()
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            -- Пытаемся забрать созревший урожай у других
-            local otherGarden = workspace.Gardens:FindFirstChild(otherPlayer.Name)
-            if otherGarden then
-                for _, crop in pairs(otherGarden:GetChildren()) do
-                    if crop:FindFirstChild("Harvestable") and crop.Harvestable.Value == true then
-                        game:GetService("ReplicatedStorage").Events.Harvest:FireServer(crop)
+    -- Look for the folder with gardens (checks multiple names just in case)
+    local gardens = workspace:FindFirstChild("Gardens") or workspace:FindFirstChild("Plots") or workspace:FindFirstChild("Farms") or workspace:FindFirstChild("PlotsModel")
+    
+    if gardens then
+        for _, plot in pairs(gardens:GetChildren()) do
+            for _, item in pairs(plot:GetDescendants()) do
+                -- Check for harvestable tag
+                if item.Name == "Harvestable" and item.Value == true then
+                    local crop = item.Parent
+                    local remote = game:GetService("ReplicatedStorage"):FindFirstChild("Events")
+                    if remote and remote:FindFirstChild("Harvest") then
+                        remote.Harvest:FireServer(crop)
                     end
                 end
             end
@@ -21,19 +23,12 @@ function stealFromEveryone()
     end
 end
 
--- Функция автофарма (сажаем и собираем у себя)
+-- Main loop
 spawn(function()
-    while wait(1) do
-        -- Собираем свой урожай
-        local myGarden = workspace.Gardens:FindFirstChild(player.Name)
-        if myGarden then
-            for _, crop in pairs(myGarden:GetChildren()) do
-                game:GetService("ReplicatedStorage").Events.Harvest:FireServer(crop)
-            end
-        end
-        -- Воруем у других каждые 5 секунд
-        stealFromEveryone()
+    while task.wait(1) do
+        -- Steal and harvest
+        pcall(stealFromEveryone)
     end
 end)
 
-print("Steal Mode: ON")
+print("AliHub System: Running")
